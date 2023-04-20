@@ -29,6 +29,25 @@ def generate_key_points(data):
         key_points.append(summary)
     return key_points
 
+# Define function to generate questions using GPT-3
+def generate_questions(data):
+    questions = []
+    for row in data.itertuples():
+        text = str(row[1])
+        prompt = "Please formulate maximum 5 questions based on this data:\n" + text
+        response = openai.Completion.create(
+            engine="davinci",
+            prompt=prompt,
+            temperature=0.5,
+            max_tokens=100,
+            n=1,
+            stop=None,
+            timeout=30,
+            )
+        quest = response.choices[0].text.strip()
+        questions.append(quest)
+    return questions
+
 def main():
     st.title('Tabular Data Key Points Generator')
     
@@ -39,10 +58,15 @@ def main():
         
         # Generate key points
         key_points = generate_key_points(data)
+        questions = generate_questions(data)
         
         # Show key points
         st.subheader('Key Points')
         st.write(key_points)
+        
+        # Show questions
+        st.subheader('Questions')
+        st.write(questions)
         
 if __name__ == '__main__':
     main()
