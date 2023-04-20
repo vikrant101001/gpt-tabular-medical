@@ -30,11 +30,10 @@ def generate_key_points(data):
     return key_points
 
 # Define function to generate questions using GPT-3
-def generate_questions(data):
-    questions = []
-    for row in data.itertuples():
-        text = str(row[1])
-        prompt = "Please formulate maximum 5 questions based on this data:\n" + text
+def generate_qa(key_points):
+    qa_pairs = []
+    for kp in key_points:
+        prompt = "Please generate a question and answer based on the following key point:\n" + kp
         response = openai.Completion.create(
             engine="davinci",
             prompt=prompt,
@@ -44,9 +43,9 @@ def generate_questions(data):
             stop=None,
             timeout=30,
             )
-        quest = response.choices[0].text.strip()
-        questions.append(quest)
-    return questions
+        qa = response.choices[0].text.strip().split("\n")
+        qa_pairs.append((qa[0], qa[1]))
+    return qa_pairs
 
 def main():
     st.title('Tabular Data Key Points Generator')
@@ -58,15 +57,21 @@ def main():
         
         # Generate key points
         key_points = generate_key_points(data)
-        questions = generate_questions(data)
+        
         
         # Show key points
         st.subheader('Key Points')
         st.write(key_points)
         
-        # Show questions
-        st.subheader('Questions')
-        st.write(questions)
+        # Generate questions and answers
+        qa_pairs = generate_qa(key_points)
+        
+        # Show questions and answers
+        st.subheader('Questions and Answers')
+        for i, qa in enumerate(qa_pairs):
+            st.write(f"{i+1}. Q: {qa[0]}")
+            st.write(f"   A: {qa[1]}")
+
         
 if __name__ == '__main__':
     main()
