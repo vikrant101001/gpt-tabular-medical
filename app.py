@@ -15,7 +15,7 @@ def generate_key_points(data):
     key_points = []
     for row in data.itertuples():
         text = str(row[1])
-        prompt = "Please summarize the following text in a few key points:\n" + text
+        prompt = "Please summarize the following text in a few key points with numbering:\n" + text
         response = openai.Completion.create(
             engine="davinci",
             prompt=prompt,
